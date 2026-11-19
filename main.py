@@ -1,5 +1,5 @@
 """
-Gestão de Salão UNISAVE
+Gestão de Salão
 Aplicação desktop desenvolvida em Python com Tkinter para gerir clientes,
 serviços e marcações de um salão de beleza utilizando SQLite.
 """

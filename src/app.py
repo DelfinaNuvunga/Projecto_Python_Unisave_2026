@@ -15,7 +15,7 @@ class SalaoApp:
         self.marcacoes = MarcacaoRepository(self.database)
 
         self.root = tk.Tk()
-        self.root.title("Gestão de Salão - UNISAVE")
+        self.root.title("Gestão de Salão")
         self.root.geometry("1000x620")
         self.root.minsize(850, 560)
 
