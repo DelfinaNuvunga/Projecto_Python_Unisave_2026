@@ -1,4 +1,0 @@
-- Utilizar Python 3.8 ou superior e Tkinter.
-- Manter POO, SQLite e tratamento de exceções.
-- Não adicionar dependências externas desnecessárias.
-- Preservar a estrutura definida no README.md.

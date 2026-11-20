@@ -15,15 +15,42 @@ class SalaoApp:
         self.marcacoes = MarcacaoRepository(self.database)
 
         self.root = tk.Tk()
-        self.root.title("Gestão de Salão")
-        self.root.geometry("1000x620")
-        self.root.minsize(850, 560)
+        self.root.title("UniSave — Gestão de Salão")
+        self.root.geometry("1120x720")
+        self.root.minsize(950, 620)
+
+        cores = {
+            "fundo": "#f7f2f5",
+            "primaria": "#8a3f70",
+            "primaria_escura": "#66304f",
+            "rosa": "#e8b7d1",
+            "texto": "#3d2935",
+        }
+        self.root.configure(bg=cores["fundo"])
 
         estilo = ttk.Style(self.root)
         estilo.theme_use("clam")
+        estilo.configure("TFrame", background=cores["fundo"])
+        estilo.configure("TLabel", background=cores["fundo"], foreground=cores["texto"], font=("Segoe UI", 10))
+        estilo.configure("TEntry", fieldbackground="#ffffff", bordercolor="#d8bdcb", foreground=cores["texto"])
+        estilo.configure("TCombobox", fieldbackground="#ffffff", bordercolor="#d8bdcb", foreground=cores["texto"])
+        estilo.configure("TButton", font=("Segoe UI", 10, "bold"), padding=(12, 8), foreground="#ffffff", background=cores["primaria"])
+        estilo.map("TButton", background=[("active", cores["primaria_escura"]), ("pressed", cores["primaria_escura"])])
+        estilo.configure("TNotebook", background=cores["fundo"], borderwidth=0)
+        estilo.configure("TNotebook.Tab", font=("Segoe UI", 11, "bold"), padding=(22, 10), background="#eadde4", foreground=cores["texto"])
+        estilo.map("TNotebook.Tab", background=[("selected", cores["primaria"])], foreground=[("selected", "#ffffff")])
+        estilo.configure("Treeview", font=("Segoe UI", 10), rowheight=34, fieldbackground="#ffffff", background="#ffffff", foreground=cores["texto"])
+        estilo.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"), background=cores["primaria_escura"], foreground="#ffffff", padding=(8, 8))
+        estilo.map("Treeview.Heading", background=[("active", cores["primaria"])])
+        
+        cabecalho = tk.Frame(self.root, bg=cores["primaria_escura"], height=82)
+        cabecalho.pack(fill="x", side="top")
+        cabecalho.pack_propagate(False)
+        tk.Label(cabecalho, text="UNISAVE", bg=cores["primaria_escura"], fg="#ffffff", font=("Segoe UI", 22, "bold")).pack(side="left", padx=(24, 12), pady=18)
+        tk.Label(cabecalho, text="Gestão inteligente do seu salão", bg=cores["primaria_escura"], fg="#f1d7e4", font=("Segoe UI", 11)).pack(side="left", pady=(7, 0))
 
         notebook = ttk.Notebook(self.root)
-        notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        notebook.pack(fill="both", expand=True, padx=16, pady=(14, 8))
 
         self.tab_clientes = ttk.Frame(notebook)
         self.tab_servicos = ttk.Frame(notebook)
@@ -37,15 +64,39 @@ class SalaoApp:
         self._criar_tabela_marcacoes()
         self._atualizar_todas()
 
+        self.status = tk.Label(
+            self.root,
+            text="Sistema pronto",
+            anchor="w",
+            bg="#eadde4",
+            fg="#66304f",
+            font=("Segoe UI", 9),
+            padx=16,
+            pady=7,
+        )
+        self.status.pack(fill="x", side="bottom")
+
     def run(self):
         self.root.mainloop()
 
     def _tabela(self, parent, columns, headings, widths):
-        tabela = ttk.Treeview(parent, columns=columns, show="headings")
+        container = ttk.Frame(parent)
+        container.pack(fill="both", expand=True, padx=14, pady=(6, 12))
+
+        tabela = ttk.Treeview(container, columns=columns, show="headings", selectmode="browse")
         for coluna, titulo, largura in zip(columns, headings, widths):
             tabela.heading(coluna, text=titulo)
-            tabela.column(coluna, width=largura, anchor="center")
-        tabela.pack(fill="both", expand=True, padx=10, pady=10)
+            tabela.column(coluna, width=largura, anchor="center", minwidth=60)
+
+        scroll = ttk.Scrollbar(container, orient="vertical", command=tabela.yview)
+        tabela.configure(yscrollcommand=scroll.set)
+        tabela.grid(row=0, column=0, sticky="nsew")
+        scroll.grid(row=0, column=1, sticky="ns")
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        tabela.tag_configure("par", background="#ffffff")
+        tabela.tag_configure("impar", background="#f5edf2")
         return tabela
 
     def _criar_tabela_clientes(self):
@@ -191,20 +242,23 @@ class SalaoApp:
     def _atualizar_clientes(self):
         for item in self.tabela_clientes.get_children():
             self.tabela_clientes.delete(item)
-        for cliente in self.clientes.listar():
-            self.tabela_clientes.insert("", "end", values=cliente)
+        for indice, cliente in enumerate(self.clientes.listar(), start=1):
+            tag = "par" if indice % 2 == 0 else "impar"
+            self.tabela_clientes.insert("", "end", values=cliente, tags=(tag,))
 
     def _atualizar_servicos(self):
         for item in self.tabela_servicos.get_children():
             self.tabela_servicos.delete(item)
-        for servico in self.servicos.listar():
-            self.tabela_servicos.insert("", "end", values=(servico[0], servico[1], f"{servico[2]:.2f}"))
+        for indice, servico in enumerate(self.servicos.listar(), start=1):
+            tag = "par" if indice % 2 == 0 else "impar"
+            self.tabela_servicos.insert("", "end", values=(servico[0], servico[1], f"{servico[2]:.2f} MT"), tags=(tag,))
 
     def _atualizar_marcacoes(self):
         for item in self.tabela_marcacoes.get_children():
             self.tabela_marcacoes.delete(item)
-        for marcacao in self.marcacoes.listar():
-            self.tabela_marcacoes.insert("", "end", values=(marcacao[0], marcacao[1], marcacao[2], marcacao[3], marcacao[4], marcacao[5], f"{marcacao[8]:.2f}"))
+        for indice, marcacao in enumerate(self.marcacoes.listar(), start=1):
+            tag = "par" if indice % 2 == 0 else "impar"
+            self.tabela_marcacoes.insert("", "end", values=(marcacao[0], marcacao[1], marcacao[2], marcacao[3], marcacao[4], marcacao[5], f"{marcacao[8]:.2f} MT"), tags=(tag,))
 
     def _atualizar_comboboxes(self):
         clientes = [f"{item[0]} - {item[1]}" for item in self.clientes.listar()]
@@ -217,3 +271,13 @@ class SalaoApp:
         self._atualizar_servicos()
         self._atualizar_marcacoes()
         self._atualizar_comboboxes()
+        if hasattr(self, "status"):
+            self.status.configure(
+                text=(
+                    f"{len(self.clientes.listar())} clientes  •  "
+                    f"{len(self.servicos.listar())} serviços  •  "
+                    f"{len(self.marcacoes.listar())} marcações"
+                )
+            )
+
+

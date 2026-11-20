@@ -2,10 +2,10 @@ Gestão de Salão
 - Aplicação desktop em Python para gerir clientes, serviços e marcações de um salão de beleza, facilitando a organização diária e reduzindo erros de agendamento.
 
 Elementos do Grupo
-- Nome Completo 1 (Username GitHub 1)
-- Nome Completo 2 (Username GitHub 2)
-- Nome Completo 3 (Username GitHub 3)
-- Nome Completo 4 (Username GitHub 4)
+- Nome Completo Delfina Castigo Nuvunga
+- Nome Completo Anicia Vitoria Mutimba
+- Nome Completo Tania Mazoio
+- Nome Completo Yilah Langa
 
 Funcionalidades
 - Cadastro, consulta e eliminação de clientes
